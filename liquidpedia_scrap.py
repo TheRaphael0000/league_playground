@@ -8,20 +8,23 @@ import re
 domain = "https://liquipedia.net"
 
 
-def cache(url: str, prefix=""):
+def cache(url: str, prefix="", refresh_cache=False):
     filepath = f"cache/{prefix}{hashlib.md5(url.encode('utf8')).hexdigest()}"
     try:
+        if refresh_cache:
+            raise Exception("Refresh cache")
+        print(f"Reading cache for {url}")
         return open(filepath, "rb").read().decode("utf8")
     except:
         time.sleep(random.random() * 2)
+        print(f"Fetching for {url}")
         data = requests.get(url).content
         open(filepath, "wb").write(data)
         return data
 
 
-def get_games_from_match(url):
-    print(url)
-    match_page = cache(url, "match_")
+def get_games_from_match(url, refresh_cache=False):
+    match_page = cache(url, "match_", refresh_cache)
     match_soup = bs4.BeautifulSoup(match_page, features="html.parser")
     games_ = []
     teams = [team.find("a").get("title") for team in match_soup.find_all(
@@ -47,9 +50,9 @@ def get_games_from_match(url):
     return games_
 
 
-def get_games_from_schedule(schedule_url):
-
-    schedule_page = cache(schedule_url, "schedule_")
+def get_games_from_schedule(schedule_url, refresh_cache=False):
+    schedule_page = cache(schedule_url, "schedule_",
+                          refresh_cache=refresh_cache)
     schedule_soup = bs4.BeautifulSoup(schedule_page, features="html.parser")
 
     links = schedule_soup.find_all('a')
@@ -63,7 +66,7 @@ def get_games_from_schedule(schedule_url):
     for match_link in matches_links:
         url = f"{domain}{match_link}"
         try:
-            new_games = get_games_from_match(url)
+            new_games = get_games_from_match(url, refresh_cache)
             games.extend(new_games)
         except Exception as e:
             print(e)

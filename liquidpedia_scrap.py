@@ -1,26 +1,9 @@
-import random
-import hashlib
+from utils import cache
+
 import bs4
-import requests
-import time
 import re
 
 domain = "https://liquipedia.net"
-
-
-def cache(url: str, prefix="", refresh_cache=False):
-    filepath = f"cache/{prefix}{hashlib.md5(url.encode('utf8')).hexdigest()}"
-    try:
-        if refresh_cache:
-            raise Exception("Refresh cache")
-        print(f"Reading cache for {url}")
-        return open(filepath, "rb").read().decode("utf8")
-    except:
-        time.sleep(random.random() * 2)
-        print(f"Fetching for {url}")
-        data = requests.get(url).content
-        open(filepath, "wb").write(data)
-        return data
 
 
 def get_games_from_match(url, refresh_cache=False):
@@ -70,5 +53,5 @@ def get_games_from_schedule(schedule_url, refresh_cache=False):
             games.extend(new_games)
         except Exception as e:
             print(e)
-            break
+            # break
     return games

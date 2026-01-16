@@ -1,4 +1,7 @@
 cache
-.venv
+venv
 .vscode
 __pycache__
+*.png
+*.jpg
+.env
